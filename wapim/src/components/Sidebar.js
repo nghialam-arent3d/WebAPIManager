@@ -64,8 +64,8 @@ export default function Sidebar() {
     {
       name: 'API Playground',
       icon: '⚡',
-      href: '/api-playground',
-      active: pathname === '/api-playground'
+      href: '/playground',
+      active: pathname === '/playground'
     },
     {
       name: 'Invoices',
