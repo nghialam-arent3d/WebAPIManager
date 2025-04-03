@@ -67,9 +67,9 @@ export default function Playground() {
       <Sidebar />
       
       <div className="flex-1">
-        <div className="max-w-md mx-auto p-6">
-          <div className="bg-white rounded-xl border border-[#d4cdb7] p-6 shadow-sm">
-            <h1 className="text-2xl font-mono text-[#2d4544] mb-6">API Playground</h1>
+        <div className="max-w-md mx-auto p-4 sm:p-6">
+          <div className="bg-white rounded-xl border border-[#d4cdb7] p-4 sm:p-6 shadow-sm">
+            <h1 className="text-xl sm:text-2xl font-mono text-[#2d4544] mb-4 sm:mb-6">API Playground</h1>
             
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>

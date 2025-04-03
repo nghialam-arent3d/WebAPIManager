@@ -2,11 +2,11 @@ import Link from 'next/link';
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen bg-[#f9f5e9] flex items-center justify-center">
+    <div className="min-h-screen bg-[#f9f5e9] flex items-center justify-center p-4">
       <div className="max-w-xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <div className="mb-8">
+        <div className="mb-6 sm:mb-8">
           <svg
-            className="w-32 h-32 mx-auto text-[#5c8d89]"
+            className="w-24 h-24 sm:w-32 sm:h-32 mx-auto text-[#5c8d89]"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
@@ -20,14 +20,14 @@ export default function NotFound() {
             />
           </svg>
         </div>
-        <h1 className="text-3xl font-bold text-[#2d4544]">Under Construction</h1>
-        <p className="mt-4 text-lg text-[#5c8d89]">
+        <h1 className="text-2xl sm:text-3xl font-bold text-[#2d4544]">Under Construction</h1>
+        <p className="mt-3 sm:mt-4 text-base sm:text-lg text-[#5c8d89]">
           This page is currently being built. Please check back later!
         </p>
-        <div className="mt-8">
+        <div className="mt-6 sm:mt-8">
           <Link
             href="/dashboard"
-            className="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-[#5c8d89] hover:bg-[#4a7571] transition-colors"
+            className="inline-flex items-center justify-center w-full sm:w-auto px-6 sm:px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-[#5c8d89] hover:bg-[#4a7571] transition-colors"
           >
             <svg 
               className="w-5 h-5 mr-2" 

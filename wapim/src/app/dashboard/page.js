@@ -103,46 +103,32 @@ export default function Dashboard() {
         <nav className="border-b border-brand-border bg-white/50 backdrop-blur-sm">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between h-16">
-              <div className="flex">
+              <div className="flex items-center">
                 <div className="flex items-center space-x-2">
-                  <span className="text-gray-500">Pages</span>
-                  <span className="text-gray-400">/</span>
+                  <span className="text-gray-500 hidden sm:inline">Pages</span>
+                  <span className="text-gray-400 hidden sm:inline">/</span>
                   <span className="font-medium text-gray-900">Overview</span>
                 </div>
               </div>
-              {/* <div className="flex items-center space-x-4">
-                <button className="p-2 rounded-full hover:bg-gray-100 transition-colors">
-                  <span role="img" aria-label="github">🌐</span>
-                </button>
-                <button className="p-2 rounded-full hover:bg-gray-100 transition-colors">
-                  <span role="img" aria-label="twitter">🐦</span>
-                </button>
-                <button className="p-2 rounded-full hover:bg-gray-100 transition-colors">
-                  <span role="img" aria-label="email">✉️</span>
-                </button>
-                <button className="p-2 rounded-full hover:bg-gray-100 transition-colors">
-                  <span role="img" aria-label="theme">🌙</span>
-                </button>
-              </div> */}
             </div>
           </div>
         </nav>
 
         <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="mb-8">
-            <h1 className="text-4xl font-medium text-gray-900">Overview</h1>
+            <h1 className="text-3xl sm:text-4xl font-medium text-gray-900">Overview</h1>
           </div>
 
           {/* Current Plan Card */}
-          <div className="mb-8 rounded-xl bg-gradient-to-br from-purple-600 via-purple-500 to-pink-500 p-6 text-white">
-            <div className="flex justify-between items-start">
-              <div>
+          <div className="mb-8 rounded-xl bg-gradient-to-br from-purple-600 via-purple-500 to-pink-500 p-4 sm:p-6 text-white">
+            <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
+              <div className="flex-1">
                 <div className="mb-4">
                   <span className="inline-block px-3 py-1 bg-white/20 rounded-full text-sm font-medium">
                     CURRENT PLAN
                   </span>
                 </div>
-                <h2 className="text-2xl font-medium mb-4">Researcher</h2>
+                <h2 className="text-xl sm:text-2xl font-medium mb-4">Researcher</h2>
                 <div className="space-y-2">
                   <div>
                     <div className="flex items-center gap-2 mb-1">
@@ -156,20 +142,20 @@ export default function Dashboard() {
                   </div>
                 </div>
               </div>
-              <button className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors font-medium">
+              <button className="w-full sm:w-auto px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors font-medium">
                 Manage Plan
               </button>
             </div>
           </div>
 
           {/* API Keys Section */}
-          <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-brand-border overflow-hidden">
-            <div className="p-6 border-b border-brand-border">
-              <div className="flex justify-between items-center">
+          <div className="bg-white rounded-xl border border-brand-border shadow-sm overflow-hidden">
+            <div className="p-4 sm:p-6 border-b border-brand-border">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <h2 className="text-xl font-mono text-brand-text">API Keys</h2>
                 <button
                   onClick={() => setIsModalOpen(true)}
-                  className="px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-hover transition-colors font-mono"
+                  className="w-full sm:w-auto px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-hover transition-colors font-mono"
                 >
                   + New Key
                 </button>
@@ -190,11 +176,11 @@ export default function Dashboard() {
           </div>
 
           {/* Contact Section */}
-          <div className="mt-8 flex justify-between items-center">
+          <div className="mt-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <p className="text-brand-primary text-sm">
               Have any questions, feedback or need support? We'd love to hear from you!
             </p>
-            <button className="px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-hover transition-colors font-mono">
+            <button className="w-full sm:w-auto px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-hover transition-colors font-mono">
               Contact us
             </button>
           </div>

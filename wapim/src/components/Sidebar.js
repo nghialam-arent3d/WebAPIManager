@@ -8,6 +8,7 @@ export default function Sidebar() {
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [animatedText, setAnimatedText] = useState({});
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleMouseEnter = () => {
     setIsCollapsed(false);
@@ -84,10 +85,22 @@ export default function Sidebar() {
 
   return (
     <>
+      {/* Mobile Menu Button */}
+      <button
+        className="lg:hidden fixed top-4 left-4 z-30 p-2 rounded-lg bg-[#f5f1e4] border border-[#d4cdb7] shadow-sm"
+        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+      >
+        <svg className="w-6 h-6 text-[#2d4544]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+
       <aside 
         className={`min-h-screen bg-[#f5f1e4] border-r border-[#d4cdb7] shadow-[2px_0_12px_-2px_rgba(0,0,0,0.1)] relative z-20 transition-all duration-300 ${
           isCollapsed ? 'w-20 hover:w-64' : 'w-64'
-        }`}
+        } ${
+          isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+        } lg:translate-x-0`}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
@@ -153,6 +166,14 @@ export default function Sidebar() {
           </div>
         </div>
       </aside>
+
+      {/* Overlay for mobile */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black/20 z-10 lg:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
     </>
   );
 } 
