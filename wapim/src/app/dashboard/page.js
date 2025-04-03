@@ -110,7 +110,7 @@ export default function Dashboard() {
                   <span className="font-medium text-gray-900">Overview</span>
                 </div>
               </div>
-              <div className="flex items-center space-x-4">
+              {/* <div className="flex items-center space-x-4">
                 <button className="p-2 rounded-full hover:bg-gray-100 transition-colors">
                   <span role="img" aria-label="github">🌐</span>
                 </button>
@@ -123,7 +123,7 @@ export default function Dashboard() {
                 <button className="p-2 rounded-full hover:bg-gray-100 transition-colors">
                   <span role="img" aria-label="theme">🌙</span>
                 </button>
-              </div>
+              </div> */}
             </div>
           </div>
         </nav>
