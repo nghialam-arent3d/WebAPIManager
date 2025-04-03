@@ -1,22 +1,18 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { useState } from 'react';
+import { useApiKeys } from '@/hooks/useApiKeys';
 import Notification from '@/components/Notification';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import Sidebar from '@/components/Sidebar';
+import { CreateKeyModal } from '@/components/modals/CreateKeyModal';
+import { EditKeyModal } from '@/components/modals/EditKeyModal';
+import { ApiKeysTable } from '@/components/ApiKeysTable';
 
 export default function Dashboard() {
-  const [apiKeys, setApiKeys] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingKey, setEditingKey] = useState(null);
-  const [editKeyName, setEditKeyName] = useState('');
-  const [newKeyName, setNewKeyName] = useState('');
-  const [monthlyLimit, setMonthlyLimit] = useState(1000);
-  const [limitEnabled, setLimitEnabled] = useState(false);
-  const [visibleKeys, setVisibleKeys] = useState(new Set());
-  const [isLoading, setIsLoading] = useState(true);
   const [notification, setNotification] = useState({
     show: false,
     message: '',
@@ -28,134 +24,13 @@ export default function Dashboard() {
     keyName: ''
   });
 
-  // Fetch API keys on component mount
-  useEffect(() => {
-    fetchApiKeys();
-  }, []);
-
-  const fetchApiKeys = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('api_keys')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setApiKeys(data || []);
-    } catch (error) {
-      console.error('Error fetching API keys:', error.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleCreateKey = async () => {
-    try {
-      const newKey = {
-        name: newKeyName || 'default',
-        key: 'wapim-' + Math.random().toString(36).substring(2, 11),
-        usage: 0,
-        limit: limitEnabled ? monthlyLimit : 1000,
-        created_at: new Date().toISOString()
-      };
-
-      const { data, error } = await supabase
-        .from('api_keys')
-        .insert([newKey])
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      setApiKeys([data, ...apiKeys]);
-      setNewKeyName('');
-      setMonthlyLimit(1000);
-      setLimitEnabled(false);
-      setIsModalOpen(false);
-    } catch (error) {
-      console.error('Error creating API key:', error.message);
-    }
-  };
-
-  const handleEditClick = (key) => {
-    setEditingKey(key);
-    setEditKeyName(key.name);
-    setIsEditModalOpen(true);
-  };
-
-  const handleSaveEdit = async () => {
-    if (!editingKey) return;
-
-    try {
-      const { data, error } = await supabase
-        .from('api_keys')
-        .update({ name: editKeyName || 'default' })
-        .eq('id', editingKey.id)
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      setApiKeys(keys => keys.map(key => 
-        key.id === editingKey.id ? data : key
-      ));
-
-      setIsEditModalOpen(false);
-      setEditingKey(null);
-      setEditKeyName('');
-      showNotification('API key name updated successfully', 'success');
-    } catch (error) {
-      console.error('Error updating API key:', error.message);
-      showNotification('Failed to update API key name', 'error');
-    }
-  };
-
-  const handleDeleteClick = (key) => {
-    setDeleteConfirm({
-      isOpen: true,
-      keyId: key.id,
-      keyName: key.name
-    });
-  };
-
-  const handleDeleteConfirm = async () => {
-    const id = deleteConfirm.keyId;
-    try {
-      const { error } = await supabase
-        .from('api_keys')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
-
-      setApiKeys(keys => keys.filter(key => key.id !== id));
-      setVisibleKeys(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(id);
-        return newSet;
-      });
-      showNotification('API key deleted successfully', 'success');
-    } catch (error) {
-      console.error('Error deleting API key:', error.message);
-      showNotification('Failed to delete API key', 'error');
-    }
-  };
-
-  const toggleKeyVisibility = (keyId) => {
-    setVisibleKeys(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(keyId)) {
-        newSet.delete(keyId);
-      } else {
-        newSet.add(keyId);
-      }
-      return newSet;
-    });
-  };
-
-  const maskApiKey = (key) => {
-    return key.substring(0, 6) + '*'.repeat(30);
-  };
+  const {
+    apiKeys,
+    isLoading,
+    createApiKey,
+    updateApiKey,
+    deleteApiKey
+  } = useApiKeys();
 
   const showNotification = (message, type = 'success') => {
     setNotification({
@@ -169,6 +44,47 @@ export default function Dashboard() {
     setNotification(prev => ({ ...prev, show: false }));
   };
 
+  const handleCreateKey = async (keyData) => {
+    try {
+      await createApiKey(keyData);
+      showNotification('API key created successfully');
+    } catch (error) {
+      showNotification('Failed to create API key', 'error');
+    }
+  };
+
+  const handleEditClick = (key) => {
+    setEditingKey(key);
+    setIsEditModalOpen(true);
+  };
+
+  const handleSaveEdit = async (id, updates) => {
+    try {
+      await updateApiKey(id, updates);
+      showNotification('API key name updated successfully');
+    } catch (error) {
+      showNotification('Failed to update API key name', 'error');
+    }
+  };
+
+  const handleDeleteClick = (key) => {
+    setDeleteConfirm({
+      isOpen: true,
+      keyId: key.id,
+      keyName: key.name
+    });
+  };
+
+  const handleDeleteConfirm = async () => {
+    try {
+      await deleteApiKey(deleteConfirm.keyId);
+      showNotification('API key deleted successfully');
+    } catch (error) {
+      showNotification('Failed to delete API key', 'error');
+    }
+    setDeleteConfirm(prev => ({ ...prev, isOpen: false }));
+  };
+
   const handleCopyKey = async (keyId, key) => {
     try {
       await navigator.clipboard.writeText(key);
@@ -177,135 +93,6 @@ export default function Dashboard() {
       console.error('Failed to copy key:', err);
       showNotification('Failed to copy API key', 'error');
     }
-  };
-
-  // Modal component
-  const CreateKeyModal = () => {
-    if (!isModalOpen) return null;
-
-    const handleInputChange = (e) => {
-      const value = e.target.value;
-      setNewKeyName(value);
-    };
-
-    return (
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-        <div className="bg-white rounded-xl w-full max-w-md p-6 shadow-xl">
-          <h2 className="text-2xl font-mono text-[#2d4544] mb-6">Create a new API key</h2>
-          
-          <p className="text-[#5c8d89] text-sm mb-6">
-            Enter a name and limit for the new API key.
-          </p>
-
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-mono text-[#5c8d89] mb-2">
-                Key Name — A unique name to identify this key
-              </label>
-              <input
-                type="text"
-                value={newKeyName}
-                onChange={handleInputChange}
-                placeholder="Key Name"
-                className="w-full p-3 border border-[#d4cdb7] rounded-lg font-mono text-[#2d4544]
-                         focus:outline-none focus:ring-2 focus:ring-[#5c8d89] transition-all"
-                autoComplete="off"
-                spellCheck="false"
-              />
-            </div>
-
-            <div>
-              <label className="flex items-center gap-2 text-sm font-mono text-[#5c8d89] mb-2">
-                <input
-                  type="checkbox"
-                  checked={limitEnabled}
-                  onChange={(e) => setLimitEnabled(e.target.checked)}
-                  className="rounded border-[#d4cdb7]"
-                />
-                Limit monthly usage*
-              </label>
-              <input
-                type="number"
-                value={monthlyLimit}
-                onChange={(e) => setMonthlyLimit(parseInt(e.target.value) || 0)}
-                disabled={!limitEnabled}
-                className="w-full p-3 border border-[#d4cdb7] rounded-lg font-mono text-[#2d4544]
-                         focus:outline-none focus:ring-2 focus:ring-[#5c8d89] transition-all
-                         disabled:bg-gray-100 disabled:text-gray-400"
-              />
-              <p className="text-xs text-[#5c8d89] mt-2">
-                *If the combined usage of all your keys exceeds your plan's limit, all requests will be rejected.
-              </p>
-            </div>
-
-            <div className="flex justify-end gap-3 mt-6">
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="px-4 py-2 text-[#5c8d89] hover:bg-[#e6e0d0] rounded-lg transition-colors font-mono"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleCreateKey}
-                className="px-4 py-2 bg-[#5c8d89] text-white rounded-lg hover:bg-[#4a7571] transition-colors font-mono"
-              >
-                Create
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  // Edit Key Modal component
-  const EditKeyModal = () => {
-    if (!isEditModalOpen || !editingKey) return null;
-
-    return (
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-        <div className="bg-white rounded-xl w-full max-w-md p-6 shadow-xl">
-          <h2 className="text-2xl font-mono text-[#2d4544] mb-6">Edit API key</h2>
-          
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-mono text-[#5c8d89] mb-2">
-                Key Name — A unique name to identify this key
-              </label>
-              <input
-                type="text"
-                value={editKeyName}
-                onChange={(e) => setEditKeyName(e.target.value)}
-                placeholder="Key Name"
-                className="w-full p-3 border border-[#d4cdb7] rounded-lg font-mono text-[#2d4544]
-                         focus:outline-none focus:ring-2 focus:ring-[#5c8d89] transition-all"
-                autoComplete="off"
-                spellCheck="false"
-              />
-            </div>
-
-            <div className="flex justify-end gap-3 mt-6">
-              <button
-                onClick={() => {
-                  setIsEditModalOpen(false);
-                  setEditingKey(null);
-                  setEditKeyName('');
-                }}
-                className="px-4 py-2 text-[#5c8d89] hover:bg-[#e6e0d0] rounded-lg transition-colors font-mono"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSaveEdit}
-                className="px-4 py-2 bg-[#5c8d89] text-white rounded-lg hover:bg-[#4a7571] transition-colors font-mono"
-              >
-                Save
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
   };
 
   return (
@@ -393,79 +180,13 @@ export default function Dashboard() {
               </p>
             </div>
 
-            <div className="divide-y divide-[#d4cdb7]">
-              <div className="px-6 py-4 bg-[#e6e0d0]/50 grid grid-cols-12 gap-4 text-sm font-mono text-[#5c8d89]">
-                <div className="col-span-2">NAME</div>
-                <div className="col-span-2">USAGE</div>
-                <div className="col-span-6">KEY</div>
-                <div className="col-span-2">OPTIONS</div>
-              </div>
-
-              {isLoading ? (
-                <div className="flex justify-center items-center h-64">
-                  <div className="text-[#5c8d89] font-mono">Loading API keys...</div>
-                </div>
-              ) : (
-                apiKeys.map((key) => (
-                  <div key={key.id} className="px-6 py-4 grid grid-cols-12 gap-4 items-center hover:bg-[#f5f1e4]/50">
-                    <div className="col-span-2 font-mono text-[#2d4544]">{key.name}</div>
-                    <div className="col-span-2">
-                      <div className="flex items-center gap-2">
-                        <div className="h-2 w-16 bg-[#e6e0d0] rounded-full">
-                          <div 
-                            className="h-full bg-[#5c8d89] rounded-full" 
-                            style={{ width: `${(key.usage / key.limit) * 100}%` }}
-                          ></div>
-                        </div>
-                        <span className="text-sm text-[#5c8d89]">{key.usage}</span>
-                      </div>
-                    </div>
-                    <div className="col-span-6 font-mono flex items-center gap-2">
-                      <code className="bg-[#e6e0d0] px-3 py-1 rounded text-[#2d4544] flex-1 font-mono">
-                        {visibleKeys.has(key.id) ? key.key : maskApiKey(key.key)}
-                      </code>
-                      <button
-                        onClick={() => handleCopyKey(key.id, key.key)}
-                        className="text-[#5c8d89] hover:text-[#4a7571] transition-colors"
-                        title="Copy to clipboard"
-                      >
-                        📋
-                      </button>
-                    </div>
-                    <div className="col-span-2 flex items-center gap-2">
-                      <button 
-                        onClick={() => toggleKeyVisibility(key.id)}
-                        className="p-2 hover:bg-[#e6e0d0] rounded-lg transition-colors"
-                        title={visibleKeys.has(key.id) ? "Hide API key" : "Show API key"}
-                      >
-                        {visibleKeys.has(key.id) ? '👁️' : '👁️‍🗨️'}
-                      </button>
-                      <button 
-                        onClick={() => handleEditClick(key)}
-                        className="p-2 hover:bg-[#e6e0d0] rounded-lg transition-colors"
-                        title="Edit key name"
-                      >
-                        📝
-                      </button>
-                      <button
-                        onClick={() => handleDeleteClick(key)}
-                        className="p-2 hover:bg-[#e6e0d0] rounded-lg transition-colors text-[#c15b5b]"
-                        title="Delete key"
-                      >
-                        🗑️
-                      </button>
-                    </div>
-                  </div>
-                ))
-              )}
-
-              {apiKeys.length === 0 && (
-                <div className="px-6 py-8 text-center">
-                  <p className="font-mono text-[#5c8d89]">No API keys yet!</p>
-                  <p className="font-mono text-sm text-[#7ba7a3] mt-2">Create your first API key to begin</p>
-                </div>
-              )}
-            </div>
+            <ApiKeysTable
+              apiKeys={apiKeys}
+              isLoading={isLoading}
+              onEdit={handleEditClick}
+              onDelete={handleDeleteClick}
+              onCopyKey={handleCopyKey}
+            />
           </div>
 
           {/* Contact Section */}
@@ -498,8 +219,21 @@ export default function Dashboard() {
         type="danger"
       />
 
-      <CreateKeyModal />
-      <EditKeyModal />
+      <CreateKeyModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onCreate={handleCreateKey}
+      />
+
+      <EditKeyModal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setEditingKey(null);
+        }}
+        onSave={handleSaveEdit}
+        apiKey={editingKey}
+      />
     </div>
   );
 } 
