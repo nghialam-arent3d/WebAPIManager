@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-export const EditKeyModal = ({ isOpen, onClose, onSave, apiKey }) => {
+export const EditKeyModal = ({ isOpen, onClose, onSubmit, apiKey }) => {
   const [editKeyName, setEditKeyName] = useState('');
 
   useEffect(() => {
@@ -13,7 +13,7 @@ export const EditKeyModal = ({ isOpen, onClose, onSave, apiKey }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave(apiKey.id, { name: editKeyName || 'default' });
+    onSubmit(apiKey.id, { name: editKeyName || 'default' });
     onClose();
   };
 

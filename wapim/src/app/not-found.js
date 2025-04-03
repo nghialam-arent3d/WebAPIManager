@@ -26,7 +26,7 @@ export default function NotFound() {
         </p>
         <div className="mt-8">
           <Link
-            href="/"
+            href="/dashboard"
             className="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-[#5c8d89] hover:bg-[#4a7571] transition-colors"
           >
             <svg 
@@ -42,7 +42,7 @@ export default function NotFound() {
                 d="M10 19l-7-7m0 0l7-7m-7 7h18" 
               />
             </svg>
-            Back to Home
+            Back to Dashboard
           </Link>
         </div>
       </div>

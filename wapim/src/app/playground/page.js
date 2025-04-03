@@ -105,7 +105,7 @@ export default function Playground() {
           show={notification.show}
           message={notification.message}
           type={notification.type}
-          onHide={() => setNotification(prev => ({ ...prev, show: false }))}
+          onClose={() => setNotification(prev => ({ ...prev, show: false }))}
         />
       </div>
     </div>

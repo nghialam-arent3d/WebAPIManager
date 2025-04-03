@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-export const CreateKeyModal = ({ isOpen, onClose, onCreate }) => {
+export const CreateKeyModal = ({ isOpen, onClose, onSubmit }) => {
   const [newKeyName, setNewKeyName] = useState('');
   const [monthlyLimit, setMonthlyLimit] = useState(1000);
   const [limitEnabled, setLimitEnabled] = useState(false);
@@ -16,7 +16,7 @@ export const CreateKeyModal = ({ isOpen, onClose, onCreate }) => {
       limit: limitEnabled ? monthlyLimit : 1000,
       created_at: new Date().toISOString()
     };
-    onCreate(newKey);
+    onSubmit(newKey);
     onClose();
   };
 
