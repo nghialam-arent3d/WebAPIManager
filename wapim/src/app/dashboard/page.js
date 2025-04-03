@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import Notification from '@/components/Notification';
 import ConfirmDialog from '@/components/ConfirmDialog';
+import Sidebar from '@/components/Sidebar';
 
 export default function Dashboard() {
   const [apiKeys, setApiKeys] = useState([]);
@@ -308,16 +309,176 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f5f1e4]">
-      <style jsx global>{`
-        @keyframes fade-in {
-          from { opacity: 0; transform: translateY(-10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in {
-          animation: fade-in 0.2s ease-out;
-        }
-      `}</style>
+    <div className="flex min-h-screen bg-gray-50">
+      <Sidebar />
+      
+      <div className="flex-1">
+        <nav className="border-b border-[#d4cdb7] bg-white/50 backdrop-blur-sm">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between h-16">
+              <div className="flex">
+                <div className="flex items-center space-x-2">
+                  <span className="text-gray-500">Pages</span>
+                  <span className="text-gray-400">/</span>
+                  <span className="font-medium text-gray-900">Overview</span>
+                </div>
+              </div>
+              <div className="flex items-center space-x-4">
+                <button className="p-2 rounded-full hover:bg-gray-100 transition-colors">
+                  <span role="img" aria-label="github">🌐</span>
+                </button>
+                <button className="p-2 rounded-full hover:bg-gray-100 transition-colors">
+                  <span role="img" aria-label="twitter">🐦</span>
+                </button>
+                <button className="p-2 rounded-full hover:bg-gray-100 transition-colors">
+                  <span role="img" aria-label="email">✉️</span>
+                </button>
+                <button className="p-2 rounded-full hover:bg-gray-100 transition-colors">
+                  <span role="img" aria-label="theme">🌙</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </nav>
+
+        <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="mb-8">
+            <h1 className="text-4xl font-medium text-gray-900">Overview</h1>
+          </div>
+
+          {/* Current Plan Card */}
+          <div className="mb-8 rounded-xl bg-gradient-to-br from-purple-600 via-purple-500 to-pink-500 p-6 text-white">
+            <div className="flex justify-between items-start">
+              <div>
+                <div className="mb-4">
+                  <span className="inline-block px-3 py-1 bg-white/20 rounded-full text-sm font-medium">
+                    CURRENT PLAN
+                  </span>
+                </div>
+                <h2 className="text-2xl font-medium mb-4">Researcher</h2>
+                <div className="space-y-2">
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span>API Limit</span>
+                      <span className="text-white/60">ⓘ</span>
+                    </div>
+                    <div className="h-2 bg-white/20 rounded-full w-full">
+                      <div className="h-full bg-white rounded-full" style={{ width: '3.5%' }}></div>
+                    </div>
+                    <div className="text-sm mt-1">35/1,000 Requests</div>
+                  </div>
+                </div>
+              </div>
+              <button className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors font-medium">
+                Manage Plan
+              </button>
+            </div>
+          </div>
+
+          {/* API Keys Section */}
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-[#d4cdb7] overflow-hidden">
+            <div className="p-6 border-b border-[#d4cdb7]">
+              <div className="flex justify-between items-center">
+                <h2 className="text-xl font-mono text-[#2d4544]">API Keys</h2>
+                <button
+                  onClick={() => setIsModalOpen(true)}
+                  className="px-4 py-2 bg-[#5c8d89] text-white rounded-lg hover:bg-[#4a7571] transition-colors font-mono"
+                >
+                  + New Key
+                </button>
+              </div>
+              <p className="mt-2 text-sm text-[#5c8d89]">
+                The key is used to authenticate your requests to the Research API. 
+                To learn more, see the <span className="underline cursor-pointer">documentation</span> page.
+              </p>
+            </div>
+
+            <div className="divide-y divide-[#d4cdb7]">
+              <div className="px-6 py-4 bg-[#e6e0d0]/50 grid grid-cols-12 gap-4 text-sm font-mono text-[#5c8d89]">
+                <div className="col-span-2">NAME</div>
+                <div className="col-span-2">USAGE</div>
+                <div className="col-span-6">KEY</div>
+                <div className="col-span-2">OPTIONS</div>
+              </div>
+
+              {isLoading ? (
+                <div className="flex justify-center items-center h-64">
+                  <div className="text-[#5c8d89] font-mono">Loading API keys...</div>
+                </div>
+              ) : (
+                apiKeys.map((key) => (
+                  <div key={key.id} className="px-6 py-4 grid grid-cols-12 gap-4 items-center hover:bg-[#f5f1e4]/50">
+                    <div className="col-span-2 font-mono text-[#2d4544]">{key.name}</div>
+                    <div className="col-span-2">
+                      <div className="flex items-center gap-2">
+                        <div className="h-2 w-16 bg-[#e6e0d0] rounded-full">
+                          <div 
+                            className="h-full bg-[#5c8d89] rounded-full" 
+                            style={{ width: `${(key.usage / key.limit) * 100}%` }}
+                          ></div>
+                        </div>
+                        <span className="text-sm text-[#5c8d89]">{key.usage}</span>
+                      </div>
+                    </div>
+                    <div className="col-span-6 font-mono flex items-center gap-2">
+                      <code className="bg-[#e6e0d0] px-3 py-1 rounded text-[#2d4544] flex-1 font-mono">
+                        {visibleKeys.has(key.id) ? key.key : maskApiKey(key.key)}
+                      </code>
+                      <button
+                        onClick={() => handleCopyKey(key.id, key.key)}
+                        className="text-[#5c8d89] hover:text-[#4a7571] transition-colors"
+                        title="Copy to clipboard"
+                      >
+                        📋
+                      </button>
+                    </div>
+                    <div className="col-span-2 flex items-center gap-2">
+                      <button 
+                        onClick={() => toggleKeyVisibility(key.id)}
+                        className="p-2 hover:bg-[#e6e0d0] rounded-lg transition-colors"
+                        title={visibleKeys.has(key.id) ? "Hide API key" : "Show API key"}
+                      >
+                        {visibleKeys.has(key.id) ? '👁️' : '👁️‍🗨️'}
+                      </button>
+                      <button 
+                        onClick={() => handleEditClick(key)}
+                        className="p-2 hover:bg-[#e6e0d0] rounded-lg transition-colors"
+                        title="Edit key name"
+                      >
+                        📝
+                      </button>
+                      <button
+                        onClick={() => handleDeleteClick(key)}
+                        className="p-2 hover:bg-[#e6e0d0] rounded-lg transition-colors text-[#c15b5b]"
+                        title="Delete key"
+                      >
+                        🗑️
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
+
+              {apiKeys.length === 0 && (
+                <div className="px-6 py-8 text-center">
+                  <p className="font-mono text-[#5c8d89]">No API keys yet!</p>
+                  <p className="font-mono text-sm text-[#7ba7a3] mt-2">Create your first API key to begin</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Contact Section */}
+          <div className="mt-8 flex justify-between items-center">
+            <p className="text-[#5c8d89] text-sm">
+              Have any questions, feedback or need support? We'd love to hear from you!
+            </p>
+            <button className="px-4 py-2 bg-[#5c8d89] text-white rounded-lg hover:bg-[#4a7571] transition-colors font-mono">
+              Contact us
+            </button>
+          </div>
+        </main>
+      </div>
 
       <Notification
         show={notification.show}
@@ -337,174 +498,6 @@ export default function Dashboard() {
         type="danger"
       />
 
-      {/* Navigation */}
-      <nav className="border-b border-[#d4cdb7] bg-white/50 backdrop-blur-sm">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex">
-              <div className="flex items-center space-x-8">
-                <span className="font-mono text-[#2d4544] text-lg">Pages</span>
-                <span className="text-[#5c8d89]">/</span>
-                <span className="font-mono text-[#2d4544]">Overview</span>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <button className="p-2 rounded-full hover:bg-[#e6e0d0] transition-colors">
-                <span role="img" aria-label="github">🌐</span>
-              </button>
-              <button className="p-2 rounded-full hover:bg-[#e6e0d0] transition-colors">
-                <span role="img" aria-label="twitter">🐦</span>
-              </button>
-              <button className="p-2 rounded-full hover:bg-[#e6e0d0] transition-colors">
-                <span role="img" aria-label="email">✉️</span>
-              </button>
-              <button className="p-2 rounded-full hover:bg-[#e6e0d0] transition-colors">
-                <span role="img" aria-label="theme">🌙</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-mono text-[#2d4544]">Overview</h1>
-        </div>
-
-        {/* Current Plan Card */}
-        <div className="mb-8 rounded-xl bg-gradient-to-br from-[#5c8d89] via-[#7ba7a3] to-[#e6e0d0] p-6 text-white">
-          <div className="flex justify-between items-start">
-            <div>
-              <div className="mb-4">
-                <span className="inline-block px-3 py-1 bg-white/20 rounded-full text-sm font-mono">
-                  CURRENT PLAN
-                </span>
-              </div>
-              <h2 className="text-2xl font-mono mb-4">Researcher</h2>
-              <div className="space-y-2">
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span>API Limit</span>
-                    <span className="text-white/60">ⓘ</span>
-                  </div>
-                  <div className="h-2 bg-white/20 rounded-full w-full">
-                    <div className="h-full bg-white rounded-full" style={{ width: '3.5%' }}></div>
-                  </div>
-                  <div className="text-sm mt-1">35/1,000 Requests</div>
-                </div>
-              </div>
-            </div>
-            <button className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors font-mono">
-              Manage Plan
-            </button>
-          </div>
-        </div>
-
-        {/* API Keys Section */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-[#d4cdb7] overflow-hidden">
-          <div className="p-6 border-b border-[#d4cdb7]">
-            <div className="flex justify-between items-center">
-              <h2 className="text-xl font-mono text-[#2d4544]">API Keys</h2>
-              <button
-                onClick={() => setIsModalOpen(true)}
-                className="px-4 py-2 bg-[#5c8d89] text-white rounded-lg hover:bg-[#4a7571] transition-colors font-mono"
-              >
-                + New Key
-              </button>
-            </div>
-            <p className="mt-2 text-sm text-[#5c8d89]">
-              The key is used to authenticate your requests to the Research API. 
-              To learn more, see the <span className="underline cursor-pointer">documentation</span> page.
-            </p>
-          </div>
-
-          <div className="divide-y divide-[#d4cdb7]">
-            <div className="px-6 py-4 bg-[#e6e0d0]/50 grid grid-cols-12 gap-4 text-sm font-mono text-[#5c8d89]">
-              <div className="col-span-2">NAME</div>
-              <div className="col-span-2">USAGE</div>
-              <div className="col-span-6">KEY</div>
-              <div className="col-span-2">OPTIONS</div>
-            </div>
-
-            {isLoading ? (
-              <div className="flex justify-center items-center h-64">
-                <div className="text-[#5c8d89] font-mono">Loading API keys...</div>
-              </div>
-            ) : (
-              apiKeys.map((key) => (
-                <div key={key.id} className="px-6 py-4 grid grid-cols-12 gap-4 items-center hover:bg-[#f5f1e4]/50">
-                  <div className="col-span-2 font-mono text-[#2d4544]">{key.name}</div>
-                  <div className="col-span-2">
-                    <div className="flex items-center gap-2">
-                      <div className="h-2 w-16 bg-[#e6e0d0] rounded-full">
-                        <div 
-                          className="h-full bg-[#5c8d89] rounded-full" 
-                          style={{ width: `${(key.usage / key.limit) * 100}%` }}
-                        ></div>
-                      </div>
-                      <span className="text-sm text-[#5c8d89]">{key.usage}</span>
-                    </div>
-                  </div>
-                  <div className="col-span-6 font-mono flex items-center gap-2">
-                    <code className="bg-[#e6e0d0] px-3 py-1 rounded text-[#2d4544] flex-1 font-mono">
-                      {visibleKeys.has(key.id) ? key.key : maskApiKey(key.key)}
-                    </code>
-                    <button
-                      onClick={() => handleCopyKey(key.id, key.key)}
-                      className="text-[#5c8d89] hover:text-[#4a7571] transition-colors"
-                      title="Copy to clipboard"
-                    >
-                      📋
-                    </button>
-                  </div>
-                  <div className="col-span-2 flex items-center gap-2">
-                    <button 
-                      onClick={() => toggleKeyVisibility(key.id)}
-                      className="p-2 hover:bg-[#e6e0d0] rounded-lg transition-colors"
-                      title={visibleKeys.has(key.id) ? "Hide API key" : "Show API key"}
-                    >
-                      {visibleKeys.has(key.id) ? '👁️' : '👁️‍🗨️'}
-                    </button>
-                    <button 
-                      onClick={() => handleEditClick(key)}
-                      className="p-2 hover:bg-[#e6e0d0] rounded-lg transition-colors"
-                      title="Edit key name"
-                    >
-                      📝
-                    </button>
-                    <button
-                      onClick={() => handleDeleteClick(key)}
-                      className="p-2 hover:bg-[#e6e0d0] rounded-lg transition-colors text-[#c15b5b]"
-                      title="Delete key"
-                    >
-                      🗑️
-                    </button>
-                  </div>
-                </div>
-              ))
-            )}
-
-            {apiKeys.length === 0 && (
-              <div className="px-6 py-8 text-center">
-                <p className="font-mono text-[#5c8d89]">No API keys yet!</p>
-                <p className="font-mono text-sm text-[#7ba7a3] mt-2">Create your first API key to begin</p>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Contact Section */}
-        <div className="mt-8 flex justify-between items-center">
-          <p className="text-[#5c8d89] text-sm">
-            Have any questions, feedback or need support? We'd love to hear from you!
-          </p>
-          <button className="px-4 py-2 bg-[#5c8d89] text-white rounded-lg hover:bg-[#4a7571] transition-colors font-mono">
-            Contact us
-          </button>
-        </div>
-      </main>
-
-      {/* Render the modals */}
       <CreateKeyModal />
       <EditKeyModal />
     </div>
