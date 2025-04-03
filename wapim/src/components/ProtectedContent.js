@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Notification from '@/components/Notification';
+import FallingLeaves from '@/components/FallingLeaves';
 import { supabase } from '@/lib/supabase';
 
 export default function ProtectedContent() {
@@ -81,9 +82,10 @@ export default function ProtectedContent() {
 
   if (!isValidated) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="max-w-md mx-auto p-6">
-          <div className="bg-white rounded-xl border border-brand-border p-6 shadow-sm">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 relative overflow-hidden">
+        <FallingLeaves />
+        <div className="max-w-md w-full relative z-10">
+          <div className="bg-white rounded-xl border border-brand-border p-6 shadow-lg transform transition-all duration-300 hover:scale-[1.02] hover:shadow-xl">
             <h1 className="text-2xl font-mono text-brand-text mb-6">Protected Area</h1>
             <p className="text-brand-primary">
               This is a protected area. Your API key is being validated...
@@ -102,14 +104,15 @@ export default function ProtectedContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-md mx-auto p-6">
-        <div className="bg-white rounded-xl border border-brand-border p-6 shadow-sm">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 relative overflow-hidden">
+      <FallingLeaves />
+      <div className="max-w-md w-full relative z-10">
+        <div className="bg-white rounded-xl border border-brand-border p-6 shadow-lg transform transition-all duration-300 hover:scale-[1.02] hover:shadow-xl">
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-2xl font-mono text-brand-text">Protected Area</h1>
             <button
               onClick={handleLogout}
-              className="px-4 py-2 text-brand-primary hover:bg-gray-100 rounded-lg transition-colors font-mono"
+              className="px-4 py-2 text-brand-primary hover:bg-gray-100 rounded-lg transition-colors font-mono transform hover:scale-105 active:scale-95"
             >
               Logout
             </button>
