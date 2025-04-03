@@ -8,13 +8,12 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: '#5c8d89',
-        'primary-dark': '#4a7571',
-        border: '#d4cdb7',
-        text: {
-          DEFAULT: '#2d4544',
-          light: '#5c8d89'
-        }
+        brand: {
+          primary: '#5c8d89',
+          hover: '#4a7571',
+          text: '#2d4544',
+          border: '#d4cdb7',
+        },
       },
     },
   },

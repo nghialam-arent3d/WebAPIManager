@@ -100,7 +100,7 @@ export default function Dashboard() {
       <Sidebar />
       
       <div className="flex-1">
-        <nav className="border-b border-[#d4cdb7] bg-white/50 backdrop-blur-sm">
+        <nav className="border-b border-brand-border bg-white/50 backdrop-blur-sm">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between h-16">
               <div className="flex">
@@ -163,18 +163,18 @@ export default function Dashboard() {
           </div>
 
           {/* API Keys Section */}
-          <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-[#d4cdb7] overflow-hidden">
-            <div className="p-6 border-b border-[#d4cdb7]">
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-brand-border overflow-hidden">
+            <div className="p-6 border-b border-brand-border">
               <div className="flex justify-between items-center">
-                <h2 className="text-xl font-mono text-[#2d4544]">API Keys</h2>
+                <h2 className="text-xl font-mono text-brand-text">API Keys</h2>
                 <button
                   onClick={() => setIsModalOpen(true)}
-                  className="px-4 py-2 bg-[#5c8d89] text-white rounded-lg hover:bg-[#4a7571] transition-colors font-mono"
+                  className="px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-hover transition-colors font-mono"
                 >
                   + New Key
                 </button>
               </div>
-              <p className="mt-2 text-sm text-[#5c8d89]">
+              <p className="mt-2 text-sm text-brand-primary">
                 The key is used to authenticate your requests to the Research API. 
                 To learn more, see the <span className="underline cursor-pointer">documentation</span> page.
               </p>
@@ -191,10 +191,10 @@ export default function Dashboard() {
 
           {/* Contact Section */}
           <div className="mt-8 flex justify-between items-center">
-            <p className="text-[#5c8d89] text-sm">
+            <p className="text-brand-primary text-sm">
               Have any questions, feedback or need support? We'd love to hear from you!
             </p>
-            <button className="px-4 py-2 bg-[#5c8d89] text-white rounded-lg hover:bg-[#4a7571] transition-colors font-mono">
+            <button className="px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-hover transition-colors font-mono">
               Contact us
             </button>
           </div>
@@ -205,7 +205,7 @@ export default function Dashboard() {
         show={notification.show}
         message={notification.message}
         type={notification.type}
-        onHide={hideNotification}
+        onClose={hideNotification}
       />
 
       <ConfirmDialog
@@ -213,25 +213,19 @@ export default function Dashboard() {
         onClose={() => setDeleteConfirm(prev => ({ ...prev, isOpen: false }))}
         onConfirm={handleDeleteConfirm}
         title="Delete API Key"
-        message={`Are you sure you want to delete the API key "${deleteConfirm.keyName}"? This action cannot be undone.`}
-        confirmText="Delete"
-        cancelText="Cancel"
-        type="danger"
+        message={`Are you sure you want to delete the API key "${deleteConfirm.keyName}"?`}
       />
 
       <CreateKeyModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onCreate={handleCreateKey}
+        onSubmit={handleCreateKey}
       />
 
       <EditKeyModal
         isOpen={isEditModalOpen}
-        onClose={() => {
-          setIsEditModalOpen(false);
-          setEditingKey(null);
-        }}
-        onSave={handleSaveEdit}
+        onClose={() => setIsEditModalOpen(false)}
+        onSubmit={handleSaveEdit}
         apiKey={editingKey}
       />
     </div>
