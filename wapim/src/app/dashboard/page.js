@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
+import Notification from '@/components/Notification';
+import ConfirmDialog from '@/components/ConfirmDialog';
 
 export default function Dashboard() {
   const [apiKeys, setApiKeys] = useState([]);
@@ -14,6 +16,16 @@ export default function Dashboard() {
   const [limitEnabled, setLimitEnabled] = useState(false);
   const [visibleKeys, setVisibleKeys] = useState(new Set());
   const [isLoading, setIsLoading] = useState(true);
+  const [notification, setNotification] = useState({
+    show: false,
+    message: '',
+    type: 'success'
+  });
+  const [deleteConfirm, setDeleteConfirm] = useState({
+    isOpen: false,
+    keyId: null,
+    keyName: ''
+  });
 
   // Fetch API keys on component mount
   useEffect(() => {
@@ -90,12 +102,23 @@ export default function Dashboard() {
       setIsEditModalOpen(false);
       setEditingKey(null);
       setEditKeyName('');
+      showNotification('API key name updated successfully', 'success');
     } catch (error) {
       console.error('Error updating API key:', error.message);
+      showNotification('Failed to update API key name', 'error');
     }
   };
 
-  const handleDeleteKey = async (id) => {
+  const handleDeleteClick = (key) => {
+    setDeleteConfirm({
+      isOpen: true,
+      keyId: key.id,
+      keyName: key.name
+    });
+  };
+
+  const handleDeleteConfirm = async () => {
+    const id = deleteConfirm.keyId;
     try {
       const { error } = await supabase
         .from('api_keys')
@@ -110,8 +133,10 @@ export default function Dashboard() {
         newSet.delete(id);
         return newSet;
       });
+      showNotification('API key deleted successfully', 'success');
     } catch (error) {
       console.error('Error deleting API key:', error.message);
+      showNotification('Failed to delete API key', 'error');
     }
   };
 
@@ -129,6 +154,28 @@ export default function Dashboard() {
 
   const maskApiKey = (key) => {
     return key.substring(0, 6) + '*'.repeat(30);
+  };
+
+  const showNotification = (message, type = 'success') => {
+    setNotification({
+      show: true,
+      message,
+      type
+    });
+  };
+
+  const hideNotification = () => {
+    setNotification(prev => ({ ...prev, show: false }));
+  };
+
+  const handleCopyKey = async (keyId, key) => {
+    try {
+      await navigator.clipboard.writeText(key);
+      showNotification('Copied API Key to clipboard');
+    } catch (err) {
+      console.error('Failed to copy key:', err);
+      showNotification('Failed to copy API key', 'error');
+    }
   };
 
   // Modal component
@@ -262,6 +309,34 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-[#f5f1e4]">
+      <style jsx global>{`
+        @keyframes fade-in {
+          from { opacity: 0; transform: translateY(-10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+          animation: fade-in 0.2s ease-out;
+        }
+      `}</style>
+
+      <Notification
+        show={notification.show}
+        message={notification.message}
+        type={notification.type}
+        onHide={hideNotification}
+      />
+
+      <ConfirmDialog
+        isOpen={deleteConfirm.isOpen}
+        onClose={() => setDeleteConfirm(prev => ({ ...prev, isOpen: false }))}
+        onConfirm={handleDeleteConfirm}
+        title="Delete API Key"
+        message={`Are you sure you want to delete the API key "${deleteConfirm.keyName}"? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        type="danger"
+      />
+
       {/* Navigation */}
       <nav className="border-b border-[#d4cdb7] bg-white/50 backdrop-blur-sm">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -375,7 +450,7 @@ export default function Dashboard() {
                       {visibleKeys.has(key.id) ? key.key : maskApiKey(key.key)}
                     </code>
                     <button
-                      onClick={() => navigator.clipboard.writeText(key.key)}
+                      onClick={() => handleCopyKey(key.id, key.key)}
                       className="text-[#5c8d89] hover:text-[#4a7571] transition-colors"
                       title="Copy to clipboard"
                     >
@@ -398,7 +473,7 @@ export default function Dashboard() {
                       📝
                     </button>
                     <button
-                      onClick={() => handleDeleteKey(key.id)}
+                      onClick={() => handleDeleteClick(key)}
                       className="p-2 hover:bg-[#e6e0d0] rounded-lg transition-colors text-[#c15b5b]"
                       title="Delete key"
                     >
