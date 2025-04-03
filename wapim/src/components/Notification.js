@@ -2,16 +2,16 @@
 
 import { useEffect } from 'react';
 
-export default function Notification({ message, type = 'success', show, onHide }) {
+export default function Notification({ message, type = 'success', show, onClose }) {
   useEffect(() => {
     if (show) {
       const timer = setTimeout(() => {
-        onHide();
+        onClose();
       }, 3000);
 
       return () => clearTimeout(timer);
     }
-  }, [show, onHide]);
+  }, [show, onClose]);
 
   if (!show) return null;
 
@@ -25,16 +25,47 @@ export default function Notification({ message, type = 'success', show, onHide }
   return (
     <>
       <style jsx global>{`
-        @keyframes fade-in {
-          from { opacity: 0; transform: translateY(-10px); }
-          to { opacity: 1; transform: translateY(0); }
+        @keyframes slide-in {
+          from { 
+            opacity: 0; 
+            transform: translateY(-20px); 
+          }
+          to { 
+            opacity: 1; 
+            transform: translateY(0); 
+          }
         }
-        .animate-fade-in {
-          animation: fade-in 0.2s ease-out;
+        
+        @keyframes slide-out {
+          from { 
+            opacity: 1; 
+            transform: translateY(0); 
+          }
+          to { 
+            opacity: 0; 
+            transform: translateY(-20px); 
+          }
+        }
+        
+        .notification-enter {
+          animation: slide-in 0.3s ease-out forwards;
+        }
+        
+        .notification-exit {
+          animation: slide-out 0.3s ease-in forwards;
         }
       `}</style>
 
-      <div className={`fixed top-4 right-4 flex items-center gap-2 ${bgColor} text-white px-4 py-2 rounded shadow-lg z-50 animate-fade-in`}>
+      <div 
+        className={`
+          fixed top-4 right-4 
+          flex items-center gap-2 
+          ${bgColor} text-white 
+          px-4 py-2 rounded-lg 
+          shadow-lg z-50 
+          notification-enter
+        `}
+      >
         <span className="text-white">
           {type === 'success' && '✓'}
           {type === 'error' && '✕'}
@@ -43,8 +74,9 @@ export default function Notification({ message, type = 'success', show, onHide }
         </span>
         <span>{message}</span>
         <button 
-          onClick={onHide}
-          className="ml-2 text-white hover:text-white/80"
+          onClick={onClose}
+          className="ml-2 text-white/80 hover:text-white transition-colors"
+          aria-label="Close notification"
         >
           ×
         </button>

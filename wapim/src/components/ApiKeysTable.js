@@ -34,8 +34,8 @@ export const ApiKeysTable = ({
   }
 
   return (
-    <div className="divide-y divide-[#d4cdb7]">
-      <div className="px-6 py-4 bg-[#e6e0d0]/50 grid grid-cols-12 gap-4 text-sm font-mono text-[#5c8d89]">
+    <div className="divide-y divide-brand-border">
+      <div className="px-6 py-4 bg-brand-border/10 grid grid-cols-12 gap-4 text-sm font-mono text-brand-primary">
         <div className="col-span-2">NAME</div>
         <div className="col-span-2">USAGE</div>
         <div className="col-span-6">KEY</div>
@@ -43,26 +43,26 @@ export const ApiKeysTable = ({
       </div>
 
       {apiKeys.map((key) => (
-        <div key={key.id} className="px-6 py-4 grid grid-cols-12 gap-4 items-center hover:bg-[#f5f1e4]/50">
-          <div className="col-span-2 font-mono text-[#2d4544]">{key.name}</div>
+        <div key={key.id} className="px-6 py-4 grid grid-cols-12 gap-4 items-center hover:bg-brand-border/10">
+          <div className="col-span-2 font-mono text-brand-text">{key.name}</div>
           <div className="col-span-2">
             <div className="flex items-center gap-2">
-              <div className="h-2 w-16 bg-[#e6e0d0] rounded-full">
+              <div className="h-2 w-16 bg-brand-border/50 rounded-full">
                 <div 
-                  className="h-full bg-[#5c8d89] rounded-full" 
+                  className="h-full bg-brand-primary rounded-full" 
                   style={{ width: `${(key.usage / key.limit) * 100}%` }}
                 ></div>
               </div>
-              <span className="text-sm text-[#5c8d89]">{key.usage}</span>
+              <span className="text-sm text-brand-primary">{key.usage}</span>
             </div>
           </div>
           <div className="col-span-6 font-mono flex items-center gap-2">
-            <code className="bg-[#e6e0d0] px-3 py-1 rounded text-[#2d4544] flex-1 font-mono">
+            <code className="bg-brand-border/20 px-3 py-1 rounded text-brand-text flex-1 font-mono">
               {visibleKeys.has(key.id) ? key.key : maskApiKey(key.key)}
             </code>
             <button
               onClick={() => onCopyKey(key.id, key.key)}
-              className="text-[#5c8d89] hover:text-[#4a7571] transition-colors"
+              className="p-2 hover:bg-brand-border/20 rounded-lg transition-all hover:scale-110 active:scale-95 text-brand-primary"
               title="Copy to clipboard"
             >
               📋
@@ -71,21 +71,21 @@ export const ApiKeysTable = ({
           <div className="col-span-2 flex items-center gap-2">
             <button 
               onClick={() => toggleKeyVisibility(key.id)}
-              className="p-2 hover:bg-[#e6e0d0] rounded-lg transition-colors"
+              className="p-2 hover:bg-brand-border/20 rounded-lg transition-colors"
               title={visibleKeys.has(key.id) ? "Hide API key" : "Show API key"}
             >
               {visibleKeys.has(key.id) ? '👁️' : '👁️‍🗨️'}
             </button>
             <button 
               onClick={() => onEdit(key)}
-              className="p-2 hover:bg-[#e6e0d0] rounded-lg transition-colors"
+              className="p-2 hover:bg-brand-border/20 rounded-lg transition-colors"
               title="Edit key name"
             >
               📝
             </button>
             <button
               onClick={() => onDelete(key)}
-              className="p-2 hover:bg-[#e6e0d0] rounded-lg transition-colors text-[#c15b5b]"
+              className="p-2 hover:bg-brand-border/20 rounded-lg transition-colors text-red-500"
               title="Delete key"
             >
               🗑️
@@ -96,8 +96,8 @@ export const ApiKeysTable = ({
 
       {apiKeys.length === 0 && (
         <div className="px-6 py-8 text-center">
-          <p className="font-mono text-[#5c8d89]">No API keys yet!</p>
-          <p className="font-mono text-sm text-[#7ba7a3] mt-2">Create your first API key to begin</p>
+          <p className="font-mono text-brand-primary">No API keys yet!</p>
+          <p className="font-mono text-sm text-brand-primary/80 mt-2">Create your first API key to begin</p>
         </div>
       )}
     </div>
