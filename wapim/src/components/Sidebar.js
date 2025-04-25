@@ -3,12 +3,15 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
+import { useSession, signOut } from 'next-auth/react';
 
 export default function Sidebar() {
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [animatedText, setAnimatedText] = useState({});
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showLogoutMenu, setShowLogoutMenu] = useState(false);
+  const { data: session } = useSession();
 
   const handleMouseEnter = () => {
     setIsCollapsed(false);
@@ -42,6 +45,10 @@ export default function Sidebar() {
     });
     setAnimatedText(initialText);
   }, []);
+
+  const handleLogout = () => {
+    signOut({ callbackUrl: '/' });
+  };
 
   const menuItems = [
     {
@@ -123,7 +130,7 @@ export default function Sidebar() {
         </div>
 
         {/* Navigation */}
-        <nav className="px-4 py-4">
+        <nav className="px-3 py-4 space-y-1">
           {menuItems.map((item) => (
             <Link
               key={item.name}
@@ -149,20 +156,55 @@ export default function Sidebar() {
         </nav>
 
         {/* User Profile */}
-        <div className={`absolute bottom-0 w-full p-4 border-t border-[#d4cdb7] bg-[#f5f1e4] shadow-[0_-1px_3px_rgba(0,0,0,0.05)] transition-all duration-300`}>
+        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-[#d4cdb7]">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-[#e6e0d0] flex items-center justify-center shadow-sm flex-shrink-0">
-              👤
+            <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
+              {session?.user?.image ? (
+                <img 
+                  src={session.user.image} 
+                  alt={session.user.name || 'User'} 
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-[#e6e0d0] flex items-center justify-center">
+                  👤
+                </div>
+              )}
             </div>
             <div className={`flex-1 transition-all duration-300 ${
               isCollapsed ? 'opacity-0 w-0 group-hover:opacity-100 group-hover:w-auto' : 'opacity-100'
             }`}>
-              <div className="text-sm font-mono text-[#2d4544] whitespace-nowrap">User Name</div>
-              <div className="text-xs text-[#5c8d89] whitespace-nowrap">user@example.com</div>
+              <div className="text-sm font-mono text-[#2d4544] whitespace-nowrap">
+                {session?.user?.name || 'User'}
+              </div>
+              <div className="text-xs text-[#5c8d89] whitespace-nowrap">
+                {session?.user?.email || 'user@example.com'}
+              </div>
             </div>
-            <button className={`text-[#5c8d89] hover:text-[#2d4544] transition-colors p-2 rounded-lg hover:bg-[#e6e0d0] hover:shadow-sm ${
-              isCollapsed ? 'opacity-0 w-0' : 'opacity-100'
-            }`}>⚙️</button>
+            <div className="relative">
+              <button 
+                onClick={() => setShowLogoutMenu(!showLogoutMenu)}
+                className={`text-[#5c8d89] hover:text-[#2d4544] transition-colors p-2 rounded-lg hover:bg-[#e6e0d0] hover:shadow-sm ${
+                  isCollapsed ? 'opacity-0 w-0' : 'opacity-100'
+                }`}
+                title="Settings"
+              >
+                ⚙️
+              </button>
+              
+              {/* Logout Menu */}
+              {showLogoutMenu && !isCollapsed && (
+                <div className="absolute right-0 bottom-full mb-2 w-40 bg-white rounded-lg shadow-lg border border-[#d4cdb7] overflow-hidden z-30">
+                  <button
+                    onClick={handleLogout}
+                    className="w-full text-left px-4 py-2 text-sm text-[#2d4544] hover:bg-[#e6e0d0] transition-colors flex items-center gap-2"
+                  >
+                    <span>🚪</span>
+                    <span>Log out</span>
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </aside>
@@ -172,6 +214,14 @@ export default function Sidebar() {
         <div 
           className="fixed inset-0 bg-black/20 z-10 lg:hidden"
           onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+      
+      {/* Click outside to close logout menu */}
+      {showLogoutMenu && (
+        <div 
+          className="fixed inset-0 z-10"
+          onClick={() => setShowLogoutMenu(false)}
         />
       )}
     </>
