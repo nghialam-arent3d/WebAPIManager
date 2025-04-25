@@ -1,8 +1,22 @@
 'use client';
 
 import Link from 'next/link';
+import { useSession, signIn, signOut } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const isLoading = status === 'loading';
+
+  const handleGetStarted = () => {
+    if (session) {
+      router.push('/dashboard');
+    } else {
+      router.push('/auth/signin');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#f9f5e9]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -14,15 +28,26 @@ export default function Home() {
             <p className="mt-3 text-base text-[#5c8d89] sm:mt-5 sm:text-lg md:mt-5 md:text-xl lg:mx-0">
               A modern, secure way to manage your API keys and monitor usage
             </p>
-            <div className="mt-5 sm:mt-8 flex justify-center">
+            <div className="mt-5 sm:mt-8 flex justify-center gap-4">
               <div className="rounded-md shadow">
-                <Link
-                  href="/dashboard"
+                <button
+                  onClick={handleGetStarted}
+                  disabled={isLoading}
                   className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-[#5c8d89] hover:bg-[#4a7571] transition-colors md:py-4 md:text-lg md:px-10"
                 >
-                  Get Started
-                </Link>
+                  {isLoading ? 'Loading...' : session ? 'Go to Dashboard' : 'Get Started'}
+                </button>
               </div>
+              {session && (
+                <div className="rounded-md shadow">
+                  <button
+                    onClick={() => signOut()}
+                    className="w-full flex items-center justify-center px-8 py-3 border border-[#d4cdb7] text-base font-medium rounded-md text-[#5c8d89] bg-white hover:bg-[#e6e0d0] transition-colors md:py-4 md:text-lg md:px-10"
+                  >
+                    Sign Out
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 

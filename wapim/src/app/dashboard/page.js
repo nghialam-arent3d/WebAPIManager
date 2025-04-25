@@ -1,6 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import { useApiKeys } from '@/hooks/useApiKeys';
 import Notification from '@/components/Notification';
 import ConfirmDialog from '@/components/ConfirmDialog';
@@ -10,6 +12,8 @@ import { EditKeyModal } from '@/components/modals/EditKeyModal';
 import { ApiKeysTable } from '@/components/ApiKeysTable';
 
 export default function Dashboard() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingKey, setEditingKey] = useState(null);
@@ -31,6 +35,12 @@ export default function Dashboard() {
     updateApiKey,
     deleteApiKey
   } = useApiKeys();
+
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/auth/signin');
+    }
+  }, [status, router]);
 
   const showNotification = (message, type = 'success') => {
     setNotification({
@@ -94,6 +104,21 @@ export default function Dashboard() {
       showNotification('Failed to copy API key', 'error');
     }
   };
+
+  if (status === 'loading') {
+    return (
+      <div className="flex min-h-screen bg-gray-50 items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#5c8d89] mx-auto"></div>
+          <p className="mt-4 text-[#5c8d89]">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!session) {
+    return null; // Will redirect in useEffect
+  }
 
   return (
     <div className="flex min-h-screen bg-gray-50">
