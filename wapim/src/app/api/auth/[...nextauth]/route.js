@@ -1,5 +1,6 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
+import { userService } from "@/services/userService";
 
 const handler = NextAuth({
   providers: [
@@ -13,6 +14,34 @@ const handler = NextAuth({
     error: "/auth/error",
   },
   callbacks: {
+    async signIn({ user, account, profile }) {
+      try {
+        // Check if user exists in Supabase
+        const existingUser = await userService.getUserByEmail(user.email);
+
+        if (!existingUser) {
+          // Create new user in Supabase
+          await userService.createUser({
+            email: user.email,
+            name: user.name,
+            image: user.image,
+            provider: account.provider,
+            provider_id: profile.sub,
+            last_login: new Date().toISOString(),
+          });
+        } else {
+          // Update last login
+          await userService.updateUser(user.email, {
+            last_login: new Date().toISOString(),
+          });
+        }
+
+        return true;
+      } catch (error) {
+        console.error('Error in signIn callback:', error);
+        return true; // Still allow sign in even if Supabase update fails
+      }
+    },
     async jwt({ token, account }) {
       if (account) {
         token.accessToken = account.access_token;
